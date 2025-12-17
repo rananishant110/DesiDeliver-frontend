@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Drawer,
@@ -22,11 +23,11 @@ import CartItemComponent from './CartItem';
 interface CartSidebarProps {
   open: boolean;
   onClose: () => void;
-  onNavigate?: (route: string) => void;
 }
 
-const CartSidebar: React.FC<CartSidebarProps> = ({ open, onClose, onNavigate }) => {
+const CartSidebar: React.FC<CartSidebarProps> = ({ open, onClose }) => {
   const { state, clearCart, getCartSummary } = useCart();
+  const navigate = useNavigate();
   const { cart, loading, error } = state;
   const { totalItems, totalQuantity, itemCount } = getCartSummary();
 
@@ -41,12 +42,8 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ open, onClose, onNavigate }) 
   };
 
   const handleCheckout = () => {
-    if (onNavigate) {
-      onNavigate('orders');
-      onClose(); // Close the cart sidebar
-    } else {
-      console.log('Navigate to checkout - onNavigate prop not provided');
-    }
+    navigate('/orders');
+    onClose(); // Close the cart sidebar
   };
 
   return (

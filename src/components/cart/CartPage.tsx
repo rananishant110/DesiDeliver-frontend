@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Paper,
@@ -15,12 +16,8 @@ import {
 import { useCart } from '../../contexts/CartContext';
 
 
-interface CartPageProps {
-  onBackToDashboard: () => void;
-  onNavigateToCheckout: () => void;
-}
-
-const CartPage: React.FC<CartPageProps> = ({ onBackToDashboard, onNavigateToCheckout }) => {
+const CartPage: React.FC = () => {
+  const navigate = useNavigate();
   const { state } = useCart();
   const cart = state.cart;
 
@@ -37,7 +34,7 @@ const CartPage: React.FC<CartPageProps> = ({ onBackToDashboard, onNavigateToChec
           </Typography>
           <Button
             variant="contained"
-            onClick={onBackToDashboard}
+            onClick={() => navigate('/')}
             startIcon={<ArrowBack />}
           >
             Back to Dashboard
@@ -59,7 +56,7 @@ const CartPage: React.FC<CartPageProps> = ({ onBackToDashboard, onNavigateToChec
             variant="contained"
             color="primary"
             startIcon={<CheckCircle />}
-            onClick={onNavigateToCheckout}
+            onClick={() => navigate('/orders')}
             size="large"
           >
             Proceed to Checkout ({cart.total_items} items)
@@ -67,7 +64,7 @@ const CartPage: React.FC<CartPageProps> = ({ onBackToDashboard, onNavigateToChec
           
           <Button
             variant="outlined"
-            onClick={onBackToDashboard}
+            onClick={() => navigate('/')}
             startIcon={<ArrowBack />}
           >
             Back to Dashboard

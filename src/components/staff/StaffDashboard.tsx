@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Typography,
@@ -47,10 +48,6 @@ import {
 import { ordersAPI } from '../../services/api';
 import { Order } from '../../types';
 
-interface StaffDashboardProps {
-  onBackToDashboard: () => void;
-}
-
 interface OrderForStaff extends Order {
   can_be_updated: boolean;
   next_available_statuses: string[];
@@ -79,7 +76,8 @@ interface StaffDashboardState {
   };
 }
 
-const StaffDashboard: React.FC<StaffDashboardProps> = ({ onBackToDashboard }) => {
+const StaffDashboard: React.FC = () => {
+  const navigate = useNavigate();
   const [state, setState] = useState<StaffDashboardState>({
     orders: [],
     loading: false,
@@ -299,9 +297,14 @@ const StaffDashboard: React.FC<StaffDashboardProps> = ({ onBackToDashboard }) =>
         <Typography variant="h4" component="h1">
           Staff Dashboard - Order Management
         </Typography>
-        <Button variant="outlined" onClick={onBackToDashboard}>
-          Back to Dashboard
-        </Button>
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <Button variant="outlined" onClick={() => navigate('/staff-tickets')}>
+            Manage Tickets
+          </Button>
+          <Button variant="outlined" onClick={() => navigate('/')}>
+            Back to Dashboard
+          </Button>
+        </Box>
       </Box>
 
       {/* Summary Cards */}

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Container,
@@ -19,13 +20,12 @@ import PaginationComponent from './Pagination';
 
 interface ProductCatalogProps {
   onViewProduct: (product: Product) => void;
-  onBackToDashboard?: () => void;
 }
 
 const ProductCatalog: React.FC<ProductCatalogProps> = ({
   onViewProduct,
-  onBackToDashboard,
 }) => {
+  const navigate = useNavigate();
   const { addToCart } = useCart();
   // State for products
   const [products, setProducts] = useState<Product[]>([]);
@@ -160,7 +160,7 @@ const ProductCatalog: React.FC<ProductCatalogProps> = ({
         <Button
           variant="outlined"
           startIcon={<ArrowBack />}
-          onClick={onBackToDashboard}
+          onClick={() => navigate('/')}
           sx={{ position: 'absolute', left: 0, top: '50%', transform: 'translateY(-50%)' }}
         >
           Back to Dashboard

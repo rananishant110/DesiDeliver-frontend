@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   AppBar,
@@ -19,12 +20,12 @@ import CartSidebar from '../cart/CartSidebar';
 
 interface LayoutProps {
   children: React.ReactNode;
-  onNavigate?: (route: string) => void;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children, onNavigate }) => {
+const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { user, isAuthenticated, logout } = useAuth();
   const { openCart, closeCart, state } = useCart();
+  const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -84,8 +85,9 @@ const Layout: React.FC<LayoutProps> = ({ children, onNavigate }) => {
                     {user?.business_name || user?.username}
                   </Typography>
                 </MenuItem>
-                <MenuItem onClick={handleClose}>Profile</MenuItem>
-                <MenuItem onClick={handleClose}>Orders</MenuItem>
+                <MenuItem onClick={() => { navigate('/profile'); handleClose(); }}>Profile</MenuItem>
+                <MenuItem onClick={() => { navigate('/orders'); handleClose(); }}>Orders</MenuItem>
+                <MenuItem onClick={() => { navigate('/tickets'); handleClose(); }}>Support Tickets</MenuItem>
                 <MenuItem onClick={handleLogout}>Logout</MenuItem>
               </Menu>
             </>
@@ -119,7 +121,7 @@ const Layout: React.FC<LayoutProps> = ({ children, onNavigate }) => {
       </Box>
 
       {/* Cart Sidebar */}
-      <CartSidebar open={state.isOpen} onClose={closeCart} onNavigate={onNavigate} />
+      <CartSidebar open={state.isOpen} onClose={closeCart} />
     </Box>
   );
 };

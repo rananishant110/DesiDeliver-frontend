@@ -8,11 +8,13 @@ import {
   Alert,
   CircularProgress,
 } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { LoginCredentials } from '../../types';
 
 const LoginForm: React.FC = () => {
   const { login, isLoading, error, clearError } = useAuth();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState<LoginCredentials>({
     username: '',
     password: '',
@@ -123,10 +125,7 @@ const LoginForm: React.FC = () => {
             Don't have an account?{' '}
             <Button
               color="primary"
-              onClick={() => {
-                // TODO: Navigate to registration page
-                console.log('Navigate to registration');
-              }}
+              onClick={() => navigate('/register')}
               sx={{ textTransform: 'none' }}
             >
               Sign up here

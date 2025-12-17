@@ -1,14 +1,18 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { AuthProvider } from './contexts/AuthContext';
 import { CartProvider } from './contexts/CartContext';
 import LoginForm from './components/auth/LoginForm';
+import RegistrationForm from './components/auth/RegistrationForm';
 import Dashboard from './components/common/Dashboard';
 import ProductCatalog from './components/catalog/ProductCatalog';
 import CartPage from './components/cart/CartPage';
 import OrdersPage from './components/orders/OrdersPage';
 import StaffDashboard from './components/staff/StaffDashboard';
+import TicketsPage from './components/tickets/TicketsPage';
+import StaffTicketDashboard from './components/tickets/StaffTicketDashboard';
 import Layout from './components/common/Layout';
 import { useAuth } from './contexts/AuthContext';
 import { Product } from './types';
@@ -53,10 +57,9 @@ const theme = createTheme({
   },
 });
 
-// Main App Content Component
-const AppContent: React.FC = () => {
+// Protected Route Component
+const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth();
-  const [currentRoute, setCurrentRoute] = useState('dashboard');
 
   if (isLoading) {
     return (
@@ -71,49 +74,111 @@ const AppContent: React.FC = () => {
     );
   }
 
-  if (isAuthenticated) {
-    const handleNavigate = (route: string) => {
-      setCurrentRoute(route);
-    };
+  return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
+};
 
-    // Cart functionality is now handled by CartContext
+// Main App Content Component
+const AppContent: React.FC = () => {
+  const { isAuthenticated, isLoading } = useAuth();
 
-    const handleViewProduct = (product: Product) => {
-      // TODO: Implement product detail view
-      console.log('Viewing product:', product);
-    };
-
-    const renderContent = () => {
-      switch (currentRoute) {
-        case 'catalog':
-          return <ProductCatalog 
-            onViewProduct={handleViewProduct} 
-            onBackToDashboard={() => setCurrentRoute('dashboard')}
-          />;
-        case 'cart':
-          return <CartPage 
-            onBackToDashboard={() => setCurrentRoute('dashboard')}
-            onNavigateToCheckout={() => setCurrentRoute('orders')}
-          />;
-        case 'orders':
-          return <OrdersPage onBackToDashboard={() => setCurrentRoute('dashboard')} />;
-        case 'staff':
-          return <StaffDashboard onBackToDashboard={() => setCurrentRoute('dashboard')} />;
-        case 'profile':
-          return <div>Profile Component - Coming Soon!</div>;
-        default:
-          return <Dashboard onNavigate={handleNavigate} />;
-      }
-    };
-
+  if (isLoading) {
     return (
-      <Layout onNavigate={handleNavigate}>
-        {renderContent()}
-      </Layout>
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '100vh' 
+      }}>
+        <div>Loading...</div>
+      </div>
     );
   }
 
-  return <LoginForm />;
+  const handleViewProduct = (product: Product) => {
+    // TODO: Implement product detail view
+    console.log('Viewing product:', product);
+  };
+
+  return (
+    <Routes>
+      {/* Public Routes */}
+      <Route path="/login" element={
+        isAuthenticated ? <Navigate to="/" replace /> : <LoginForm />
+      } />
+      
+      <Route path="/register" element={
+        isAuthenticated ? <Navigate to="/" replace /> : <RegistrationForm />
+      } />
+
+      {/* Protected Routes */}
+      <Route path="/" element={
+        <ProtectedRoute>
+          <Layout>
+            <Dashboard />
+          </Layout>
+        </ProtectedRoute>
+      } />
+
+      <Route path="/catalog" element={
+        <ProtectedRoute>
+          <Layout>
+            <ProductCatalog onViewProduct={handleViewProduct} />
+          </Layout>
+        </ProtectedRoute>
+      } />
+
+      <Route path="/cart" element={
+        <ProtectedRoute>
+          <Layout>
+            <CartPage />
+          </Layout>
+        </ProtectedRoute>
+      } />
+
+      <Route path="/orders" element={
+        <ProtectedRoute>
+          <Layout>
+            <OrdersPage />
+          </Layout>
+        </ProtectedRoute>
+      } />
+
+      <Route path="/tickets/*" element={
+        <ProtectedRoute>
+          <Layout>
+            <TicketsPage />
+          </Layout>
+        </ProtectedRoute>
+      } />
+
+      <Route path="/staff-tickets" element={
+        <ProtectedRoute>
+          <Layout>
+            <StaffTicketDashboard />
+          </Layout>
+        </ProtectedRoute>
+      } />
+
+      <Route path="/staff" element={
+        <ProtectedRoute>
+          <Layout>
+            <StaffDashboard />
+          </Layout>
+        </ProtectedRoute>
+      } />
+
+      <Route path="/profile" element={
+        <ProtectedRoute>
+          <Layout>
+            <div>Profile Component - Coming Soon!</div>
+          </Layout>
+        </ProtectedRoute>
+      } />
+
+      {/* Catch-all redirect */}
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
 };
 
 function App() {

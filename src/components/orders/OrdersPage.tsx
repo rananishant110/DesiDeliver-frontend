@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Typography,
@@ -14,13 +15,10 @@ import CheckoutForm from './CheckoutForm';
 import OrderHistory from './OrderHistory';
 import OrderDetail from './OrderDetail';
 
-interface OrdersPageProps {
-  onBackToDashboard: () => void;
-}
-
 type OrderView = 'checkout' | 'history' | 'detail';
 
-const OrdersPage: React.FC<OrdersPageProps> = ({ onBackToDashboard }) => {
+const OrdersPage: React.FC = () => {
+  const navigate = useNavigate();
   const { state } = useCart();
   const cart = state.cart;
   
@@ -43,7 +41,7 @@ const OrdersPage: React.FC<OrdersPageProps> = ({ onBackToDashboard }) => {
   };
 
   const handleBackToDashboard = () => {
-    onBackToDashboard();
+    navigate('/');
   };
 
   const renderContent = () => {

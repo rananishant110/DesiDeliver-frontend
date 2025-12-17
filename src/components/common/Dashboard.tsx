@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Typography,
@@ -9,15 +10,12 @@ import {
   Paper,
   Grid,
 } from '@mui/material';
-import { Store, ShoppingCart, Receipt, Person, Business } from '@mui/icons-material';
+import { Store, ShoppingCart, Receipt, Person, Business, ConfirmationNumber } from '@mui/icons-material';
 import { useAuth } from '../../contexts/AuthContext';
 
-interface DashboardProps {
-  onNavigate: (route: string) => void;
-}
-
-const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
+const Dashboard: React.FC = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   const dashboardItems = [
     {
@@ -26,6 +24,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
       icon: <Store sx={{ fontSize: 40 }} />,
       action: 'View Catalog',
       color: '#1976d2',
+      route: '/catalog',
     },
     {
       title: 'Shopping Cart',
@@ -33,6 +32,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
       icon: <ShoppingCart sx={{ fontSize: 40 }} />,
       action: 'View Cart',
       color: '#dc004e',
+      route: '/cart',
     },
     {
       title: 'Order History',
@@ -40,6 +40,15 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
       icon: <Receipt sx={{ fontSize: 40 }} />,
       action: 'View Orders',
       color: '#2e7d32',
+      route: '/orders',
+    },
+    {
+      title: 'Support Tickets',
+      description: 'Get help with your orders and track support requests',
+      icon: <ConfirmationNumber sx={{ fontSize: 40 }} />,
+      action: 'View Tickets',
+      color: '#9c27b0',
+      route: '/tickets',
     },
     {
       title: 'Profile',
@@ -47,6 +56,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
       icon: <Person sx={{ fontSize: 40 }} />,
       action: 'Edit Profile',
       color: '#ed6c02',
+      route: '/profile',
     },
   ];
 
@@ -92,12 +102,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
                 variant="outlined" 
                 size="small"
                 sx={{ color: item.color, borderColor: item.color }}
-                onClick={() => {
-                  if (item.title === 'Browse Products') onNavigate('catalog');
-                  else if (item.title === 'Shopping Cart') onNavigate('cart');
-                  else if (item.title === 'Order History') onNavigate('orders');
-                  else if (item.title === 'Profile') onNavigate('profile');
-                }}
+                onClick={() => navigate(item.route)}
               >
                 {item.action}
               </Button>
@@ -148,7 +153,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onNavigate }) => {
               color="secondary"
               size="large"
               startIcon={<Business />}
-              onClick={() => onNavigate('staff')}
+              onClick={() => navigate('/staff')}
               sx={{ minWidth: 200 }}
             >
               Staff Dashboard

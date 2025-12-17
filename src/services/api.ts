@@ -13,7 +13,14 @@ import {
   OrderStats,
   AuthResponse,
   ApiResponse,
-  PaginatedResponse
+  PaginatedResponse,
+  Ticket,
+  TicketListItem,
+  CreateTicketData,
+  AddCommentData,
+  UpdateTicketStatusData,
+  UpdateTicketPriorityData,
+  TicketStats
 } from '../types';
 
 // API Configuration
@@ -310,6 +317,69 @@ export const ordersAPI = {
     notes?: string;
   }): Promise<any> => {
     const response = await api.patch(`/orders/${orderId}/status/`, data);
+    return response.data;
+  },
+};
+
+// ========================================
+// Tickets API
+// ========================================
+export const ticketsAPI = {
+  // Create a new support ticket
+  createTicket: async (data: CreateTicketData): Promise<Ticket> => {
+    const response = await api.post('/tickets/', data);
+    return response.data;
+  },
+
+  // Get list of tickets with filtering
+  getTickets: async (params: {
+    page?: number;
+    page_size?: number;
+    status?: string;
+    priority?: string;
+    category?: string;
+    search?: string;
+  } = {}): Promise<PaginatedResponse<TicketListItem>> => {
+    const queryParams = new URLSearchParams();
+    
+    if (params.page) queryParams.append('page', params.page.toString());
+    if (params.page_size) queryParams.append('page_size', params.page_size.toString());
+    if (params.status) queryParams.append('status', params.status);
+    if (params.priority) queryParams.append('priority', params.priority);
+    if (params.category) queryParams.append('category', params.category);
+    if (params.search) queryParams.append('search', params.search);
+    
+    const response = await api.get(`/tickets/?${queryParams}`);
+    return response.data;
+  },
+
+  // Get detailed ticket information
+  getTicketDetail: async (ticketId: number): Promise<Ticket> => {
+    const response = await api.get(`/tickets/${ticketId}/`);
+    return response.data;
+  },
+
+  // Add a comment to a ticket
+  addTicketComment: async (ticketId: number, data: AddCommentData): Promise<any> => {
+    const response = await api.post(`/tickets/${ticketId}/comments/`, data);
+    return response.data;
+  },
+
+  // Update ticket status (staff only)
+  updateTicketStatus: async (ticketId: number, data: UpdateTicketStatusData): Promise<Ticket> => {
+    const response = await api.patch(`/tickets/${ticketId}/status/`, data);
+    return response.data;
+  },
+
+  // Update ticket priority (staff only)
+  updateTicketPriority: async (ticketId: number, data: UpdateTicketPriorityData): Promise<Ticket> => {
+    const response = await api.patch(`/tickets/${ticketId}/priority/`, data);
+    return response.data;
+  },
+
+  // Get ticket statistics (staff only)
+  getTicketStats: async (): Promise<TicketStats> => {
+    const response = await api.get('/tickets/stats/');
     return response.data;
   },
 };

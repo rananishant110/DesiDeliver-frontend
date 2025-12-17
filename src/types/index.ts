@@ -173,3 +173,125 @@ export interface PaginatedResponse<T> {
   previous?: string;
   results: T[];
 }
+
+// Ticket Types
+export interface UserBasic {
+  id: number;
+  username: string;
+  email: string;
+  business_name: string;
+  is_staff: boolean;
+}
+
+export interface OrderBasic {
+  id: number;
+  order_number: string;
+  status: string;
+  created_at: string;
+}
+
+export interface TicketComment {
+  id: number;
+  ticket: number;
+  author: UserBasic;
+  comment: string;
+  is_staff_comment: boolean;
+  created_at: string;
+}
+
+export interface TicketHistory {
+  id: number;
+  ticket: number;
+  changed_by: UserBasic;
+  field_changed: string;
+  old_value: string;
+  new_value: string;
+  change_reason: string;
+  created_at: string;
+}
+
+export interface Ticket {
+  id: number;
+  ticket_number: string;
+  customer: UserBasic;
+  order?: OrderBasic;
+  subject: string;
+  description: string;
+  category: TicketCategory;
+  priority: TicketPriority;
+  priority_display: string;
+  status: TicketStatus;
+  status_display: string;
+  created_at: string;
+  updated_at: string;
+  resolved_at?: string;
+  closed_at?: string;
+  comments: TicketComment[];
+  history: TicketHistory[];
+  can_update: boolean;
+}
+
+export interface TicketListItem {
+  id: number;
+  ticket_number: string;
+  customer: UserBasic;
+  order?: OrderBasic;
+  subject: string;
+  category: string;
+  priority: string;
+  status: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export type TicketStatus = 'open' | 'in_progress' | 'resolved' | 'closed';
+export type TicketPriority = 'low' | 'medium' | 'high' | 'urgent';
+export type TicketCategory = 'order_issue' | 'product_quality' | 'delivery' | 'billing' | 'technical' | 'other';
+
+export interface CreateTicketData {
+  subject: string;
+  description: string;
+  category: TicketCategory;
+  priority: TicketPriority;
+  order_id?: number;
+}
+
+export interface UpdateTicketStatusData {
+  status: TicketStatus;
+  reason?: string;
+}
+
+export interface UpdateTicketPriorityData {
+  priority: TicketPriority;
+  reason?: string;
+}
+
+export interface AddCommentData {
+  comment: string;
+}
+
+export interface TicketStats {
+  total_tickets: number;
+  open_tickets: number;
+  recent_tickets: number;
+  by_status: {
+    open: number;
+    in_progress: number;
+    resolved: number;
+    closed: number;
+  };
+  by_priority: {
+    low: number;
+    medium: number;
+    high: number;
+    urgent: number;
+  };
+  by_category: {
+    order_issue: number;
+    product_quality: number;
+    delivery: number;
+    billing: number;
+    technical: number;
+    other: number;
+  };
+}
