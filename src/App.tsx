@@ -1,61 +1,25 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
 import { AuthProvider } from './contexts/AuthContext';
 import { CartProvider } from './contexts/CartContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 import LoginForm from './components/auth/LoginForm';
 import RegistrationForm from './components/auth/RegistrationForm';
 import Dashboard from './components/common/Dashboard';
 import ProductCatalog from './components/catalog/ProductCatalog';
 import CartPage from './components/cart/CartPage';
 import OrdersPage from './components/orders/OrdersPage';
+import OrderDetail from './components/orders/OrderDetail';
 import StaffDashboard from './components/staff/StaffDashboard';
 import TicketsPage from './components/tickets/TicketsPage';
 import StaffTicketDashboard from './components/tickets/StaffTicketDashboard';
 import Layout from './components/common/Layout';
+import { LandingPage } from './components/landing';
 import { useAuth } from './contexts/AuthContext';
 import { Product } from './types';
+import './styles/globals.css';
+import './styles/animations.css';
 import './App.css';
-
-// Create a custom theme for DesiDeliver
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: '#1976d2', // Blue
-    },
-    secondary: {
-      main: '#dc004e', // Pink/Red
-    },
-    background: {
-      default: '#f5f5f5',
-    },
-  },
-  typography: {
-    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
-    h4: {
-      fontWeight: 600,
-    },
-  },
-  components: {
-    MuiButton: {
-      styleOverrides: {
-        root: {
-          borderRadius: 8,
-          textTransform: 'none',
-          fontWeight: 600,
-        },
-      },
-    },
-    MuiPaper: {
-      styleOverrides: {
-        root: {
-          borderRadius: 12,
-        },
-      },
-    },
-  },
-});
 
 // Protected Route Component
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -101,17 +65,27 @@ const AppContent: React.FC = () => {
 
   return (
     <Routes>
-      {/* Public Routes */}
+      {/* Public Routes - Landing Page for unauthenticated users */}
+      <Route path="/" element={
+        isAuthenticated ? (
+          <Layout>
+            <Dashboard />
+          </Layout>
+        ) : (
+          <LandingPage />
+        )
+      } />
+
       <Route path="/login" element={
-        isAuthenticated ? <Navigate to="/" replace /> : <LoginForm />
+        isAuthenticated ? <Navigate to="/dashboard" replace /> : <LoginForm />
       } />
       
       <Route path="/register" element={
-        isAuthenticated ? <Navigate to="/" replace /> : <RegistrationForm />
+        isAuthenticated ? <Navigate to="/dashboard" replace /> : <RegistrationForm />
       } />
 
       {/* Protected Routes */}
-      <Route path="/" element={
+      <Route path="/dashboard" element={
         <ProtectedRoute>
           <Layout>
             <Dashboard />
@@ -131,6 +105,14 @@ const AppContent: React.FC = () => {
         <ProtectedRoute>
           <Layout>
             <CartPage />
+          </Layout>
+        </ProtectedRoute>
+      } />
+
+      <Route path="/orders/:orderId" element={
+        <ProtectedRoute>
+          <Layout>
+            <OrderDetail />
           </Layout>
         </ProtectedRoute>
       } />
@@ -183,8 +165,7 @@ const AppContent: React.FC = () => {
 
 function App() {
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    <ThemeProvider>
       <AuthProvider>
         <CartProvider>
           <div className="App">

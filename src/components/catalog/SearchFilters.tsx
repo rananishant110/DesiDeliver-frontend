@@ -10,8 +10,11 @@ import {
   InputAdornment,
   Typography,
   Chip,
+  useTheme,
+  alpha,
+  Paper,
 } from '@mui/material';
-import { Search, Clear, FilterList } from '@mui/icons-material';
+import { Search, Clear, FilterList, TuneRounded } from '@mui/icons-material';
 import { Category } from '../../types';
 import { debounce, generateSearchSuggestions } from '../../utils/searchUtils';
 
@@ -36,6 +39,7 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({
   selectedCategory,
   selectedStockStatus,
 }) => {
+  const theme = useTheme();
   const [localSearchTerm, setLocalSearchTerm] = useState(searchTerm);
   const [isSearching, setIsSearching] = useState(false);
 
@@ -68,67 +72,113 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({
   const hasActiveFilters = localSearchTerm || selectedCategory !== null || selectedStockStatus !== null;
 
   return (
-    <Box sx={{ mb: 4, p: 3, backgroundColor: 'grey.50', borderRadius: 2 }}>
-      <Typography variant="h6" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-        <FilterList />
-        Search & Filters
-      </Typography>
+    <Paper
+      elevation={0}
+      sx={{ 
+        mb: 4, 
+        p: 3, 
+        borderRadius: 3,
+        border: `1px solid ${theme.palette.divider}`,
+        background: theme.palette.mode === 'dark' 
+          ? alpha(theme.palette.background.paper, 0.6)
+          : alpha(theme.palette.primary.main, 0.02),
+      }}
+    >
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
+        <Typography 
+          variant="h6" 
+          sx={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: 1.5,
+            fontWeight: 600,
+          }}
+        >
+          <TuneRounded sx={{ color: 'primary.main' }} />
+          Search & Filters
+        </Typography>
+        {hasActiveFilters && (
+          <Button
+            variant="text"
+            size="small"
+            onClick={handleClearFilters}
+            startIcon={<Clear />}
+            sx={{ 
+              color: 'text.secondary',
+              textTransform: 'none',
+              '&:hover': {
+                color: 'error.main',
+                bgcolor: alpha(theme.palette.error.main, 0.1),
+              },
+            }}
+          >
+            Clear All
+          </Button>
+        )}
+      </Box>
       
-      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(4, 1fr)' }, gap: 3 }}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(4, 1fr)' }, gap: 2.5 }}>
         {/* Search Input */}
         <Box sx={{ gridColumn: { xs: '1 / -1', md: '1 / 3' } }}>
           <TextField
             fullWidth
-            label="Search Products"
-            placeholder="Search by: Product Name, Description, Item Code, Brand, Origin, Category..."
+            placeholder="Search products by name, description, brand..."
             value={localSearchTerm}
             onChange={(e) => handleSearchChange(e.target.value)}
-            helperText="Search updates in real-time as you type. Use multiple words for better results."
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <Search />
+                  <Search sx={{ color: 'text.secondary' }} />
                 </InputAdornment>
               ),
               endAdornment: (
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   {isSearching && (
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                      <Box sx={{ 
-                        width: 12, 
-                        height: 12, 
-                        border: '2px solid', 
-                        borderColor: 'primary.main', 
-                        borderTopColor: 'transparent', 
-                        borderRadius: '50%', 
-                        animation: 'spin 1s linear infinite',
-                        '@keyframes spin': {
-                          '0%': { transform: 'rotate(0deg)' },
-                          '100%': { transform: 'rotate(360deg)' }
-                        }
-                      }} />
-                    </Box>
+                    <Box sx={{ 
+                      width: 16, 
+                      height: 16, 
+                      border: '2px solid', 
+                      borderColor: 'primary.main', 
+                      borderTopColor: 'transparent', 
+                      borderRadius: '50%', 
+                      animation: 'spin 1s linear infinite',
+                      '@keyframes spin': {
+                        '0%': { transform: 'rotate(0deg)' },
+                        '100%': { transform: 'rotate(360deg)' }
+                      }
+                    }} />
                   )}
                   {localSearchTerm && (
-                    <Typography variant="caption" color="text.secondary">
-                      {localSearchTerm.split(' ').filter(term => term.length > 0).length} terms
-                    </Typography>
+                    <Chip 
+                      label={`${localSearchTerm.split(' ').filter(term => term.length > 0).length} terms`}
+                      size="small"
+                      sx={{ height: 20, fontSize: '0.7rem' }}
+                    />
                   )}
                 </Box>
               ),
+            }}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                borderRadius: 2,
+                bgcolor: theme.palette.background.paper,
+                '&:hover': {
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'primary.main',
+                  },
+                },
+              },
             }}
           />
           
           {/* Search Suggestions */}
           {localSearchTerm && localSearchTerm.length > 1 && (
             <Box sx={{ 
-              gridColumn: '1 / -1', 
-              mt: 1, 
-              p: 1.5, 
-              backgroundColor: 'grey.50', 
-              borderRadius: 1,
-              border: '1px solid',
-              borderColor: 'grey.200'
+              mt: 1.5, 
+              p: 2, 
+              backgroundColor: alpha(theme.palette.primary.main, 0.04),
+              borderRadius: 2,
+              border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
             }}>
               <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
                 💡 Try these searches:
@@ -141,14 +191,19 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({
                     size="small"
                     variant="outlined"
                     onClick={() => handleSearchChange(suggestion)}
-                    sx={{ cursor: 'pointer', '&:hover': { backgroundColor: 'primary.50' } }}
+                    sx={{ 
+                      cursor: 'pointer', 
+                      borderRadius: 1.5,
+                      '&:hover': { 
+                        backgroundColor: alpha(theme.palette.primary.main, 0.1),
+                        borderColor: 'primary.main',
+                      } 
+                    }}
                   />
                 ))}
               </Box>
             </Box>
           )}
-          
-
         </Box>
 
         {/* Category Filter */}
@@ -159,6 +214,10 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({
               value={selectedCategory || ''}
               label="Category"
               onChange={(e) => onCategoryFilter(e.target.value ? Number(e.target.value) : null)}
+              sx={{
+                borderRadius: 2,
+                bgcolor: theme.palette.background.paper,
+              }}
             >
               <MenuItem value="">All Categories</MenuItem>
               {categories.map((category) => (
@@ -178,6 +237,10 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({
               value={selectedStockStatus === null ? '' : selectedStockStatus}
               label="Stock Status"
               onChange={(e) => onStockFilter(e.target.value === '' ? null : e.target.value === 'true')}
+              sx={{
+                borderRadius: 2,
+                bgcolor: theme.palette.background.paper,
+              }}
             >
               <MenuItem value="">All</MenuItem>
               <MenuItem value="true">In Stock</MenuItem>
@@ -185,23 +248,8 @@ const SearchFilters: React.FC<SearchFiltersProps> = ({
             </Select>
           </FormControl>
         </Box>
-
-        {/* Action Buttons */}
-        <Box sx={{ gridColumn: '1 / -1' }}>
-          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-            {hasActiveFilters && (
-              <Button
-                variant="outlined"
-                onClick={handleClearFilters}
-                startIcon={<Clear />}
-              >
-                Clear All Filters
-              </Button>
-            )}
-          </Box>
-        </Box>
       </Box>
-    </Box>
+    </Paper>
   );
 };
 

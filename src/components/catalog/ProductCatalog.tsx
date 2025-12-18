@@ -6,10 +6,13 @@ import {
   Typography,
   Alert,
   CircularProgress,
-  Paper,
   Button,
+  Chip,
+  useTheme,
+  alpha,
 } from '@mui/material';
-import { ShoppingBasket, TrendingUp, ArrowBack } from '@mui/icons-material';
+import { ShoppingBasket, TrendingUp, ArrowBack, LocalOffer, FilterAlt } from '@mui/icons-material';
+import { motion } from 'framer-motion';
 import { Product, Category } from '../../types';
 import { productsAPI } from '../../services/api';
 import { useCart } from '../../contexts/CartContext';
@@ -18,6 +21,8 @@ import CategoryNav from './CategoryNav';
 import SearchFilters from './SearchFilters';
 import PaginationComponent from './Pagination';
 
+const MotionBox = motion(Box);
+
 interface ProductCatalogProps {
   onViewProduct: (product: Product) => void;
 }
@@ -25,6 +30,7 @@ interface ProductCatalogProps {
 const ProductCatalog: React.FC<ProductCatalogProps> = ({
   onViewProduct,
 }) => {
+  const theme = useTheme();
   const navigate = useNavigate();
   const { addToCart } = useCart();
   // State for products
@@ -154,31 +160,96 @@ const ProductCatalog: React.FC<ProductCatalogProps> = ({
   }, [fetchProducts]);
 
   return (
-    <Container maxWidth="xl" sx={{ py: 4 }}>
-      {/* Header */}
-      <Box sx={{ mb: 4, textAlign: 'center', position: 'relative' }}>
-        <Button
-          variant="outlined"
-          startIcon={<ArrowBack />}
-          onClick={() => navigate('/')}
-          sx={{ position: 'absolute', left: 0, top: '50%', transform: 'translateY(-50%)' }}
+    <Box sx={{ py: { xs: 2, md: 4 } }}>
+      {/* Modern Header */}
+      <MotionBox
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        sx={{ mb: 4 }}
+      >
+        <Box
+          sx={{
+            position: 'relative',
+            borderRadius: 4,
+            overflow: 'hidden',
+            p: { xs: 3, md: 5 },
+            background: `linear-gradient(135deg, ${alpha('#FF6B35', 0.9)} 0%, ${alpha('#F7931E', 0.9)} 100%)`,
+          }}
         >
-          Back to Dashboard
-        </Button>
-        <Typography variant="h3" component="h1" gutterBottom sx={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center', 
-          gap: 2,
-          color: 'primary.main'
-        }}>
-          <ShoppingBasket fontSize="large" />
-          Product Catalog
-        </Typography>
-        <Typography variant="h6" color="text.secondary">
-          Browse our extensive collection of Indian groceries and supplies
-        </Typography>
-      </Box>
+          {/* Background Pattern */}
+          <Box
+            sx={{
+              position: 'absolute',
+              top: 0,
+              right: 0,
+              bottom: 0,
+              width: '50%',
+              opacity: 0.1,
+              background: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'1\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")',
+            }}
+          />
+
+          <Box sx={{ position: 'relative', zIndex: 1 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+              <Box
+                sx={{
+                  width: 56,
+                  height: 56,
+                  borderRadius: 2,
+                  bgcolor: 'rgba(255, 255, 255, 0.2)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <ShoppingBasket sx={{ fontSize: 32, color: 'white' }} />
+              </Box>
+              <Box>
+                <Typography
+                  variant="h4"
+                  sx={{
+                    color: 'white',
+                    fontWeight: 700,
+                    fontSize: { xs: '1.5rem', md: '2rem' },
+                  }}
+                >
+                  Product Catalog
+                </Typography>
+                <Typography
+                  variant="body1"
+                  sx={{ color: 'rgba(255, 255, 255, 0.9)' }}
+                >
+                  Discover authentic Indian groceries and supplies
+                </Typography>
+              </Box>
+            </Box>
+
+            <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mt: 3 }}>
+              <Chip
+                icon={<LocalOffer sx={{ color: 'white !important' }} />}
+                label={`${totalItems} Products`}
+                sx={{
+                  bgcolor: 'rgba(255, 255, 255, 0.2)',
+                  color: 'white',
+                  fontWeight: 600,
+                  '& .MuiChip-icon': { color: 'white' },
+                }}
+              />
+              <Chip
+                icon={<FilterAlt sx={{ color: 'white !important' }} />}
+                label={`${categories.length} Categories`}
+                sx={{
+                  bgcolor: 'rgba(255, 255, 255, 0.2)',
+                  color: 'white',
+                  fontWeight: 600,
+                  '& .MuiChip-icon': { color: 'white' },
+                }}
+              />
+            </Box>
+          </Box>
+        </Box>
+      </MotionBox>
 
       {/* Search and Filters */}
       <SearchFilters
@@ -194,14 +265,25 @@ const ProductCatalog: React.FC<ProductCatalogProps> = ({
 
       {/* Search Results Summary */}
       {searchTerm && (
-        <Paper sx={{ p: 2, mb: 2, backgroundColor: 'info.light', color: 'info.contrastText' }}>
+        <Box
+          sx={{
+            p: 2,
+            mb: 3,
+            borderRadius: 2,
+            bgcolor: alpha(theme.palette.info.main, 0.1),
+            border: `1px solid ${alpha(theme.palette.info.main, 0.2)}`,
+          }}
+        >
           <Typography variant="subtitle2" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            🔍 Search Results for "{searchTerm}":
-            <Box component="span" sx={{ ml: 1, px: 1, py: 0.5, backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 1 }}>
-              {loading ? 'Searching...' : `${totalItems} product(s) found`}
-            </Box>
+            🔍 Search Results for &quot;{searchTerm}&quot;:
+            <Chip
+              label={loading ? 'Searching...' : `${totalItems} product(s) found`}
+              size="small"
+              color="info"
+              sx={{ ml: 1 }}
+            />
           </Typography>
-        </Paper>
+        </Box>
       )}
 
       {/* Category Navigation */}
@@ -215,27 +297,44 @@ const ProductCatalog: React.FC<ProductCatalogProps> = ({
 
       {/* Active Filters Display */}
       {(searchTerm || selectedCategory !== null || selectedStockStatus !== null) && (
-        <Paper sx={{ p: 2, mb: 3, backgroundColor: 'primary.light', color: 'primary.contrastText' }}>
-          <Typography variant="subtitle2" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <TrendingUp />
+        <Box
+          sx={{
+            p: 2,
+            mb: 3,
+            borderRadius: 2,
+            bgcolor: alpha(theme.palette.primary.main, 0.05),
+            border: `1px solid ${alpha(theme.palette.primary.main, 0.15)}`,
+          }}
+        >
+          <Typography variant="subtitle2" sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+            <TrendingUp sx={{ color: 'primary.main' }} />
             Active Filters:
             {searchTerm && (
-              <Box component="span" sx={{ ml: 1, px: 1, py: 0.5, backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 1 }}>
-                Search: "{searchTerm}"
-              </Box>
+              <Chip
+                label={`Search: "${searchTerm}"`}
+                size="small"
+                onDelete={handleClearFilters}
+                sx={{ ml: 1 }}
+              />
             )}
             {selectedCategory !== null && (
-              <Box component="span" sx={{ ml: 1, px: 1, py: 0.5, backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 1 }}>
-                Category: {categories.find(c => c.id === selectedCategory)?.name}
-              </Box>
+              <Chip
+                label={`Category: ${categories.find(c => c.id === selectedCategory)?.name}`}
+                size="small"
+                onDelete={() => handleCategorySelect(null)}
+                sx={{ ml: 1 }}
+              />
             )}
             {selectedStockStatus !== null && (
-              <Box component="span" sx={{ ml: 1, px: 1, py: 0.5, backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 1 }}>
-                Stock: {selectedStockStatus ? 'In Stock' : 'Out of Stock'}
-              </Box>
+              <Chip
+                label={`Stock: ${selectedStockStatus ? 'In Stock' : 'Out of Stock'}`}
+                size="small"
+                onDelete={() => handleStockFilter(null)}
+                sx={{ ml: 1 }}
+              />
             )}
           </Typography>
-        </Paper>
+        </Box>
       )}
 
       {/* Products Grid */}
@@ -262,17 +361,29 @@ const ProductCatalog: React.FC<ProductCatalogProps> = ({
       {/* Loading State */}
       {loading && (
         <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
-          <CircularProgress size={60} />
+          <CircularProgress 
+            size={60} 
+            sx={{ 
+              color: 'primary.main',
+            }} 
+          />
         </Box>
       )}
 
       {/* Error State */}
       {error && (
-        <Alert severity="error" sx={{ mt: 3 }}>
+        <Alert 
+          severity="error" 
+          sx={{ 
+            mt: 3, 
+            borderRadius: 2,
+            border: `1px solid ${alpha(theme.palette.error.main, 0.3)}`,
+          }}
+        >
           {error}
         </Alert>
       )}
-    </Container>
+    </Box>
   );
 };
 

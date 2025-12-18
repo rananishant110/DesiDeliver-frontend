@@ -10,13 +10,18 @@ import {
   CircularProgress,
   IconButton,
   Paper,
+  alpha,
 } from '@mui/material';
 import {
   Close,
   ShoppingCart,
   DeleteSweep,
   ShoppingBasket,
+  ArrowForward,
+  Inventory,
+  LocalOffer,
 } from '@mui/icons-material';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '../../contexts/CartContext';
 import CartItemComponent from './CartItem';
 
@@ -24,6 +29,8 @@ interface CartSidebarProps {
   open: boolean;
   onClose: () => void;
 }
+
+const MotionBox = motion(Box);
 
 const CartSidebar: React.FC<CartSidebarProps> = ({ open, onClose }) => {
   const { state, clearCart, getCartSummary } = useCart();
@@ -43,7 +50,12 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ open, onClose }) => {
 
   const handleCheckout = () => {
     navigate('/orders');
-    onClose(); // Close the cart sidebar
+    onClose();
+  };
+
+  const handleViewCart = () => {
+    navigate('/cart');
+    onClose();
   };
 
   return (
@@ -53,62 +65,138 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ open, onClose }) => {
       onClose={onClose}
       sx={{
         '& .MuiDrawer-paper': {
-          width: { xs: '100%', sm: 400, md: 500 },
-          maxWidth: '90vw',
+          width: { xs: '100%', sm: 420, md: 480 },
+          maxWidth: '95vw',
+          background: (theme) => theme.palette.mode === 'dark'
+            ? theme.palette.background.default
+            : '#FAFAFA',
         },
       }}
     >
       {/* Header */}
       <Box sx={{ 
         p: 3, 
-        backgroundColor: 'primary.main', 
+        background: 'linear-gradient(135deg, #FF6B35 0%, #F7931E 100%)',
         color: 'white',
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'space-between'
+        justifyContent: 'space-between',
       }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <ShoppingCart fontSize="large" />
-          <Typography variant="h5" component="h2">
-            Shopping Cart
-          </Typography>
+          <Box
+            sx={{
+              width: 48,
+              height: 48,
+              borderRadius: 2,
+              backgroundColor: 'rgba(255, 255, 255, 0.2)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <ShoppingCart fontSize="medium" />
+          </Box>
+          <Box>
+            <Typography variant="h6" component="h2" sx={{ fontWeight: 700 }}>
+              Shopping Cart
+            </Typography>
+            <Typography variant="body2" sx={{ opacity: 0.9 }}>
+              {itemCount} {itemCount === 1 ? 'item' : 'items'}
+            </Typography>
+          </Box>
         </Box>
-        <IconButton onClick={onClose} sx={{ color: 'white' }}>
+        <IconButton 
+          onClick={onClose} 
+          sx={{ 
+            color: 'white',
+            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+            '&:hover': {
+              backgroundColor: 'rgba(255, 255, 255, 0.2)',
+            },
+          }}
+        >
           <Close />
         </IconButton>
       </Box>
 
       {/* Cart Summary */}
-      <Paper sx={{ m: 2, p: 2, backgroundColor: 'grey.50' }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-          <Typography variant="h6" color="primary">
-            Cart Summary
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            {itemCount} {itemCount === 1 ? 'item' : 'items'}
-          </Typography>
-        </Box>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Typography variant="body1">
-            Total Items: <strong>{totalItems}</strong>
-          </Typography>
-          <Typography variant="body1">
-            Total Quantity: <strong>{totalQuantity}</strong>
-          </Typography>
-        </Box>
-      </Paper>
+      <AnimatePresence>
+        {cart && cart.items.length > 0 && (
+          <MotionBox
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            sx={{ px: 2, pt: 2 }}
+          >
+            <Paper 
+              sx={{ 
+                p: 2, 
+                borderRadius: 3,
+                border: '1px solid',
+                borderColor: 'divider',
+                background: (theme) => theme.palette.background.paper,
+              }}
+            >
+              <Box sx={{ display: 'flex', gap: 2 }}>
+                <Box 
+                  sx={{ 
+                    flex: 1,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1.5,
+                    p: 1.5,
+                    borderRadius: 2,
+                    background: (theme) => alpha(theme.palette.primary.main, 0.1),
+                  }}
+                >
+                  <LocalOffer sx={{ color: 'primary.main', fontSize: '1.2rem' }} />
+                  <Box>
+                    <Typography variant="h6" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
+                      {totalItems}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      Items
+                    </Typography>
+                  </Box>
+                </Box>
+                <Box 
+                  sx={{ 
+                    flex: 1,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1.5,
+                    p: 1.5,
+                    borderRadius: 2,
+                    background: (theme) => alpha(theme.palette.secondary.main, 0.1),
+                  }}
+                >
+                  <Inventory sx={{ color: 'secondary.main', fontSize: '1.2rem' }} />
+                  <Box>
+                    <Typography variant="h6" sx={{ fontWeight: 700, lineHeight: 1.2 }}>
+                      {totalQuantity}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      Quantity
+                    </Typography>
+                  </Box>
+                </Box>
+              </Box>
+            </Paper>
+          </MotionBox>
+        )}
+      </AnimatePresence>
 
       {/* Error Display */}
       {error && (
-        <Alert severity="error" sx={{ m: 2 }}>
+        <Alert severity="error" sx={{ m: 2, borderRadius: 2 }}>
           {error}
         </Alert>
       )}
 
       {/* Loading State */}
       {loading && (
-        <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-          <CircularProgress />
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
+          <CircularProgress sx={{ color: 'primary.main' }} />
         </Box>
       )}
 
@@ -117,79 +205,162 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ open, onClose }) => {
         {!loading && !error && (
           <>
             {cart && cart.items.length > 0 ? (
-              <>
-                {/* Cart Items */}
-                <Box sx={{ mb: 3 }}>
-                  {cart.items.map((item) => (
-                    <CartItemComponent key={item.id} item={item} />
-                  ))}
-                </Box>
-
-                {/* Action Buttons */}
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                  <Button
-                    variant="contained"
-                    size="large"
-                    startIcon={<ShoppingBasket />}
-                    onClick={handleCheckout}
-                    fullWidth
-                    sx={{ py: 1.5 }}
+              <Box>
+                {cart.items.map((item, index) => (
+                  <motion.div
+                    key={item.id}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.05 }}
                   >
-                    Proceed to Checkout
-                  </Button>
-                  
-                  <Button
-                    variant="outlined"
-                    color="error"
-                    startIcon={<DeleteSweep />}
-                    onClick={handleClearCart}
-                    fullWidth
-                  >
-                    Clear Cart
-                  </Button>
-                </Box>
-              </>
+                    <CartItemComponent item={item} />
+                  </motion.div>
+                ))}
+              </Box>
             ) : (
               /* Empty Cart State */
-              <Box sx={{ 
-                textAlign: 'center', 
-                py: 8,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: 2
-              }}>
-                <ShoppingCart sx={{ fontSize: 64, color: 'text.secondary' }} />
-                <Typography variant="h6" color="text.secondary">
+              <MotionBox
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                sx={{ 
+                  textAlign: 'center', 
+                  py: 8,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: 2
+                }}
+              >
+                <Box
+                  sx={{
+                    width: 100,
+                    height: 100,
+                    borderRadius: '50%',
+                    background: (theme) => alpha(theme.palette.primary.main, 0.1),
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    mb: 2,
+                  }}
+                >
+                  <ShoppingCart sx={{ fontSize: 48, color: 'primary.main' }} />
+                </Box>
+                <Typography variant="h6" sx={{ fontWeight: 700 }}>
                   Your cart is empty
                 </Typography>
-                <Typography variant="body2" color="text.secondary">
+                <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 250 }}>
                   Start shopping to add items to your cart
                 </Typography>
                 <Button
                   variant="contained"
                   onClick={onClose}
-                  sx={{ mt: 2 }}
+                  sx={{ 
+                    mt: 2,
+                    px: 4,
+                    borderRadius: 2,
+                    background: 'linear-gradient(135deg, #FF6B35 0%, #F7931E 100%)',
+                    fontWeight: 600,
+                    '&:hover': {
+                      background: 'linear-gradient(135deg, #E55A2B 0%, #E8820D 100%)',
+                    },
+                  }}
                 >
                   Browse Products
                 </Button>
-              </Box>
+              </MotionBox>
             )}
           </>
         )}
       </Box>
 
-      {/* Footer */}
-      {cart && cart.items.length > 0 && (
-        <>
-          <Divider />
-          <Box sx={{ p: 2, backgroundColor: 'grey.50' }}>
-            <Typography variant="body2" color="text.secondary" align="center">
-              Cart will be saved automatically
-            </Typography>
-          </Box>
-        </>
-      )}
+      {/* Footer Actions */}
+      <AnimatePresence>
+        {cart && cart.items.length > 0 && (
+          <MotionBox
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+          >
+            <Divider />
+            <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+              <Button
+                variant="contained"
+                size="large"
+                endIcon={<ArrowForward />}
+                onClick={handleCheckout}
+                fullWidth
+                sx={{ 
+                  py: 1.5,
+                  borderRadius: 2,
+                  background: 'linear-gradient(135deg, #FF6B35 0%, #F7931E 100%)',
+                  fontWeight: 700,
+                  fontSize: '1rem',
+                  boxShadow: '0 4px 15px rgba(255, 107, 53, 0.3)',
+                  '&:hover': {
+                    background: 'linear-gradient(135deg, #E55A2B 0%, #E8820D 100%)',
+                    transform: 'translateY(-2px)',
+                    boxShadow: '0 6px 20px rgba(255, 107, 53, 0.4)',
+                  },
+                  transition: 'all 0.3s ease',
+                }}
+              >
+                Proceed to Checkout
+              </Button>
+              
+              <Box sx={{ display: 'flex', gap: 1.5 }}>
+                <Button
+                  variant="outlined"
+                  startIcon={<ShoppingBasket />}
+                  onClick={handleViewCart}
+                  fullWidth
+                  sx={{ 
+                    borderRadius: 2,
+                    borderWidth: 2,
+                    fontWeight: 600,
+                    '&:hover': {
+                      borderWidth: 2,
+                    },
+                  }}
+                >
+                  View Cart
+                </Button>
+                
+                <Button
+                  variant="outlined"
+                  color="error"
+                  startIcon={<DeleteSweep />}
+                  onClick={handleClearCart}
+                  sx={{ 
+                    borderRadius: 2,
+                    borderWidth: 2,
+                    fontWeight: 600,
+                    minWidth: 'auto',
+                    px: 2,
+                    '&:hover': {
+                      borderWidth: 2,
+                      backgroundColor: 'error.main',
+                      color: 'white',
+                    },
+                  }}
+                >
+                  Clear
+                </Button>
+              </Box>
+            </Box>
+            
+            {/* Info Footer */}
+            <Box sx={{ 
+              p: 2, 
+              pt: 0,
+              textAlign: 'center',
+            }}>
+              <Typography variant="caption" color="text.secondary">
+                💾 Cart saved automatically
+              </Typography>
+            </Box>
+          </MotionBox>
+        )}
+      </AnimatePresence>
     </Drawer>
   );
 };
