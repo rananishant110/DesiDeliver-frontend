@@ -33,6 +33,7 @@ import {
   Person,
   Logout,
   AdminPanelSettings,
+  LocalShipping,
 } from '@mui/icons-material';
 import { useAuth } from '../../contexts/AuthContext';
 import { useCart } from '../../contexts/CartContext';
@@ -49,6 +50,7 @@ const navItems = [
   { label: 'Products', path: '/catalog', icon: <Store /> },
   { label: 'Cart', path: '/cart', icon: <ShoppingCart /> },
   { label: 'Orders', path: '/orders', icon: <Receipt /> },
+  { label: 'Tracking', path: '/delivery/dashboard', icon: <LocalShipping /> },
   { label: 'Support', path: '/tickets', icon: <ConfirmationNumber /> },
 ];
 
@@ -175,31 +177,58 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         ))}
         
         {user?.is_staff && (
-          <ListItem disablePadding sx={{ mb: 0.5 }}>
-            <ListItemButton
-              onClick={() => handleNavigation('/staff')}
-              sx={{
-                borderRadius: 2,
-                bgcolor: isActive('/staff') 
-                  ? 'rgba(255, 107, 53, 0.1)' 
-                  : 'transparent',
-              }}
-            >
-              <ListItemIcon sx={{ 
-                color: isActive('/staff') ? 'primary.main' : 'text.secondary',
-                minWidth: 40,
-              }}>
-                <AdminPanelSettings />
-              </ListItemIcon>
-              <ListItemText 
-                primary="Staff Portal"
-                primaryTypographyProps={{
-                  fontWeight: isActive('/staff') ? 600 : 400,
-                  color: isActive('/staff') ? 'primary.main' : 'text.primary',
+          <>
+            <ListItem disablePadding sx={{ mb: 0.5 }}>
+              <ListItemButton
+                onClick={() => handleNavigation('/staff')}
+                sx={{
+                  borderRadius: 2,
+                  bgcolor: isActive('/staff') 
+                    ? 'rgba(255, 107, 53, 0.1)' 
+                    : 'transparent',
                 }}
-              />
-            </ListItemButton>
-          </ListItem>
+              >
+                <ListItemIcon sx={{ 
+                  color: isActive('/staff') ? 'primary.main' : 'text.secondary',
+                  minWidth: 40,
+                }}>
+                  <AdminPanelSettings />
+                </ListItemIcon>
+                <ListItemText 
+                  primary="Staff Portal"
+                  primaryTypographyProps={{
+                    fontWeight: isActive('/staff') ? 600 : 400,
+                    color: isActive('/staff') ? 'primary.main' : 'text.primary',
+                  }}
+                />
+              </ListItemButton>
+            </ListItem>
+            <ListItem disablePadding sx={{ mb: 0.5 }}>
+              <ListItemButton
+                onClick={() => handleNavigation('/delivery/management')}
+                sx={{
+                  borderRadius: 2,
+                  bgcolor: isActive('/delivery/management') 
+                    ? 'rgba(255, 107, 53, 0.1)' 
+                    : 'transparent',
+                }}
+              >
+                <ListItemIcon sx={{ 
+                  color: isActive('/delivery/management') ? 'primary.main' : 'text.secondary',
+                  minWidth: 40,
+                }}>
+                  <LocalShipping />
+                </ListItemIcon>
+                <ListItemText 
+                  primary="Delivery Management"
+                  primaryTypographyProps={{
+                    fontWeight: isActive('/delivery/management') ? 600 : 400,
+                    color: isActive('/delivery/management') ? 'primary.main' : 'text.primary',
+                  }}
+                />
+              </ListItemButton>
+            </ListItem>
+          </>
         )}
       </List>
       
@@ -318,20 +347,36 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 ))}
                 
                 {user?.is_staff && (
-                  <Button
-                    onClick={() => navigate('/staff')}
-                    startIcon={<AdminPanelSettings />}
-                    sx={{
-                      px: 2,
-                      py: 1,
-                      borderRadius: 2,
-                      color: isActive('/staff') ? 'primary.main' : 'text.secondary',
-                      bgcolor: isActive('/staff') ? 'rgba(255, 107, 53, 0.1)' : 'transparent',
-                      fontWeight: isActive('/staff') ? 600 : 500,
-                    }}
-                  >
-                    Staff
-                  </Button>
+                  <>
+                    <Button
+                      onClick={() => navigate('/staff')}
+                      startIcon={<AdminPanelSettings />}
+                      sx={{
+                        px: 2,
+                        py: 1,
+                        borderRadius: 2,
+                        color: isActive('/staff') ? 'primary.main' : 'text.secondary',
+                        bgcolor: isActive('/staff') ? 'rgba(255, 107, 53, 0.1)' : 'transparent',
+                        fontWeight: isActive('/staff') ? 600 : 500,
+                      }}
+                    >
+                      Staff
+                    </Button>
+                    <Button
+                      onClick={() => navigate('/delivery/management')}
+                      startIcon={<LocalShipping />}
+                      sx={{
+                        px: 2,
+                        py: 1,
+                        borderRadius: 2,
+                        color: isActive('/delivery/management') ? 'primary.main' : 'text.secondary',
+                        bgcolor: isActive('/delivery/management') ? 'rgba(255, 107, 53, 0.1)' : 'transparent',
+                        fontWeight: isActive('/delivery/management') ? 600 : 500,
+                      }}
+                    >
+                      Delivery
+                    </Button>
+                  </>
                 )}
               </Box>
             )}

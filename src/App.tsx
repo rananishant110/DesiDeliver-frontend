@@ -15,6 +15,7 @@ import TicketsPage from './components/tickets/TicketsPage';
 import StaffTicketDashboard from './components/tickets/StaffTicketDashboard';
 import Layout from './components/common/Layout';
 import { LandingPage } from './components/landing';
+import { DeliveryDashboard, DeliveryManagement, DeliveryTracker } from './components/delivery';
 import { useAuth } from './contexts/AuthContext';
 import { Product } from './types';
 import './styles/globals.css';
@@ -145,6 +146,30 @@ const AppContent: React.FC = () => {
         <ProtectedRoute>
           <Layout>
             <StaffDashboard />
+          </Layout>
+        </ProtectedRoute>
+      } />
+
+      <Route path="/delivery/dashboard" element={
+        <ProtectedRoute>
+          <Layout>
+            <DeliveryDashboard />
+          </Layout>
+        </ProtectedRoute>
+      } />
+
+      <Route path="/delivery/management" element={
+        <ProtectedRoute>
+          <Layout>
+            <DeliveryManagement />
+          </Layout>
+        </ProtectedRoute>
+      } />
+
+      <Route path="/delivery/track/:orderId" element={
+        <ProtectedRoute>
+          <Layout>
+            <DeliveryTracker orderId={1} />
           </Layout>
         </ProtectedRoute>
       } />

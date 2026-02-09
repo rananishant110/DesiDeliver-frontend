@@ -179,7 +179,10 @@ export interface UserBasic {
   id: number;
   username: string;
   email: string;
+  first_name: string;
+  last_name: string;
   business_name: string;
+  phone_number: string;
   is_staff: boolean;
 }
 
@@ -295,3 +298,151 @@ export interface TicketStats {
     other: number;
   };
 }
+
+// Delivery Tracking Types
+export interface DeliveryPersonnel {
+  id: number;
+  user: UserBasic;
+  employee_id: string;
+  phone_number: string;
+  vehicle_type: VehicleType;
+  vehicle_number: string;
+  license_number: string;
+  status: DriverStatus;
+  current_latitude?: number;
+  current_longitude?: number;
+  last_location_update?: string;
+  total_deliveries: number;
+  successful_deliveries: number;
+  average_rating: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DeliveryPersonnelList {
+  id: number;
+  user: UserBasic;
+  employee_id: string;
+  phone_number: string;
+  vehicle_type: VehicleType;
+  vehicle_number: string;
+  status: DriverStatus;
+  total_deliveries: number;
+  average_rating: number;
+}
+
+export interface DeliveryRoute {
+  id: number;
+  latitude: number;
+  longitude: number;
+  speed?: number;
+  recorded_at: string;
+}
+
+export interface DeliveryStatusHistory {
+  id: number;
+  status: DeliveryStatus;
+  notes: string;
+  changed_by: number;
+  changed_by_name: string;
+  timestamp: string;
+}
+
+export interface DeliveryTracking {
+  id: number;
+  order: Order;
+  driver?: DeliveryPersonnelList;
+  status: DeliveryStatus;
+  pickup_latitude: number;
+  pickup_longitude: number;
+  delivery_latitude: number;
+  delivery_longitude: number;
+  current_latitude?: number;
+  current_longitude?: number;
+  assigned_at: string;
+  picked_up_at?: string;
+  delivered_at?: string;
+  estimated_delivery_time?: string;
+  total_distance?: number;
+  delivery_notes: string;
+  proof_of_delivery_photo?: string;
+  customer_signature?: string;
+  customer_rating?: number;
+  customer_feedback: string;
+  status_history: DeliveryStatusHistory[];
+  route_points: DeliveryRoute[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DeliveryTrackingList {
+  id: number;
+  order: number;
+  order_number: string;
+  customer_name: string;
+  driver?: DeliveryPersonnelList;
+  status: DeliveryStatus;
+  current_latitude?: number;
+  current_longitude?: number;
+  assigned_at: string;
+  estimated_delivery_time?: string;
+  delivered_at?: string;
+}
+
+export interface LocationUpdate {
+  latitude: number;
+  longitude: number;
+  speed?: number;
+}
+
+export interface DeliveryProof {
+  notes?: string;
+  proof_photo?: File;
+  signature?: File;
+}
+
+export interface CustomerFeedback {
+  rating: number;
+  feedback?: string;
+}
+
+export interface CreateDeliveryTrackingData {
+  order_id: number;
+  driver_id?: number;
+  pickup_latitude: number;
+  pickup_longitude: number;
+  delivery_latitude: number;
+  delivery_longitude: number;
+  estimated_delivery_time?: string;
+}
+
+export type DeliveryStatus = 
+  | 'assigned' 
+  | 'picked_up' 
+  | 'in_transit' 
+  | 'nearby' 
+  | 'delivered' 
+  | 'failed' 
+  | 'cancelled';
+
+export type DriverStatus = 'available' | 'on_delivery' | 'off_duty';
+
+export type VehicleType = 'bike' | 'scooter' | 'car' | 'van' | 'truck';
+
+export interface DeliveryStats {
+  total_deliveries: number;
+  active_deliveries: number;
+  completed_today: number;
+  by_status: {
+    assigned: number;
+    picked_up: number;
+    in_transit: number;
+    nearby: number;
+    delivered: number;
+    failed: number;
+    cancelled: number;
+  };
+  average_delivery_time: number;
+  on_time_percentage: number;
+}
+

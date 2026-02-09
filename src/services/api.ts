@@ -20,7 +20,17 @@ import {
   AddCommentData,
   UpdateTicketStatusData,
   UpdateTicketPriorityData,
-  TicketStats
+  TicketStats,
+  DeliveryPersonnel,
+  DeliveryPersonnelList,
+  DeliveryTracking,
+  DeliveryTrackingList,
+  DeliveryRoute,
+  LocationUpdate,
+  DeliveryProof,
+  CustomerFeedback,
+  CreateDeliveryTrackingData,
+  DeliveryStats
 } from '../types';
 
 // API Configuration
@@ -384,4 +394,159 @@ export const ticketsAPI = {
   },
 };
 
+// Delivery Tracking API
+export const deliveryApi = {
+  // Get all delivery personnel
+  getDeliveryPersonnel: async (params: {
+    page?: number;
+    page_size?: number;
+    status?: string;
+    available?: boolean;
+  } = {}): Promise<PaginatedResponse<DeliveryPersonnelList>> => {
+    const queryParams = new URLSearchParams();
+    
+    if (params.page) queryParams.append('page', params.page.toString());
+    if (params.page_size) queryParams.append('page_size', params.page_size.toString());
+    if (params.status) queryParams.append('status', params.status);
+    if (params.available !== undefined) queryParams.append('available', params.available.toString());
+    
+    const response = await api.get(`/delivery/personnel/?${queryParams}`);
+    return response.data;
+  },
+
+  // Get specific delivery personnel details
+  getDeliveryPersonnelDetail: async (id: number): Promise<DeliveryPersonnel> => {
+    const response = await api.get(`/delivery/personnel/${id}/`);
+    return response.data;
+  },
+
+  // Create new delivery personnel
+  createDeliveryPersonnel: async (data: Partial<DeliveryPersonnel>): Promise<DeliveryPersonnel> => {
+    const response = await api.post('/delivery/personnel/', data);
+    return response.data;
+  },
+
+  // Update delivery personnel
+  updateDeliveryPersonnel: async (id: number, data: Partial<DeliveryPersonnel>): Promise<DeliveryPersonnel> => {
+    const response = await api.patch(`/delivery/personnel/${id}/`, data);
+    return response.data;
+  },
+
+  // Update driver location
+  updateDriverLocation: async (id: number, location: LocationUpdate): Promise<any> => {
+    const response = await api.patch(`/delivery/personnel/${id}/update_location/`, location);
+    return response.data;
+  },
+
+  // Update driver status
+  updateDriverStatus: async (id: number, status: string): Promise<any> => {
+    const response = await api.patch(`/delivery/personnel/${id}/update_status/`, { status });
+    return response.data;
+  },
+
+  // Get driver's current delivery
+  getDriverCurrentDelivery: async (id: number): Promise<DeliveryTracking> => {
+    const response = await api.get(`/delivery/personnel/${id}/current_delivery/`);
+    return response.data;
+  },
+
+  // Get all delivery trackings
+  getDeliveryTrackings: async (params: {
+    page?: number;
+    page_size?: number;
+    status?: string;
+    driver?: number;
+    active?: boolean;
+  } = {}): Promise<PaginatedResponse<DeliveryTrackingList>> => {
+    const queryParams = new URLSearchParams();
+    
+    if (params.page) queryParams.append('page', params.page.toString());
+    if (params.page_size) queryParams.append('page_size', params.page_size.toString());
+    if (params.status) queryParams.append('status', params.status);
+    if (params.driver) queryParams.append('driver', params.driver.toString());
+    if (params.active !== undefined) queryParams.append('active', params.active.toString());
+    
+    const response = await api.get(`/delivery/tracking/?${queryParams}`);
+    return response.data;
+  },
+
+  // Get specific delivery tracking
+  getDeliveryTrackingDetail: async (id: number): Promise<DeliveryTracking> => {
+    const response = await api.get(`/delivery/tracking/${id}/`);
+    return response.data;
+  },
+
+  // Get delivery tracking by order ID
+  getDeliveryTrackingByOrder: async (orderId: number): Promise<DeliveryTracking> => {
+    const response = await api.get(`/delivery/tracking/?order=${orderId}`);
+    if (response.data.results && response.data.results.length > 0) {
+      return response.data.results[0];
+    }
+    throw new Error('No tracking found for this order');
+  },
+
+  // Create delivery tracking
+  createDeliveryTracking: async (data: CreateDeliveryTrackingData): Promise<DeliveryTracking> => {
+    const response = await api.post('/delivery/tracking/', data);
+    return response.data;
+  },
+
+  // Update delivery tracking
+  updateDeliveryTracking: async (id: number, data: Partial<DeliveryTracking>): Promise<DeliveryTracking> => {
+    const response = await api.patch(`/delivery/tracking/${id}/`, data);
+    return response.data;
+  },
+
+  // Update delivery location
+  updateDeliveryLocation: async (id: number, location: LocationUpdate): Promise<any> => {
+    const response = await api.patch(`/delivery/tracking/${id}/update_location/`, location);
+    return response.data;
+  },
+
+  // Update delivery status
+  updateDeliveryStatus: async (id: number, status: string, notes?: string): Promise<any> => {
+    const response = await api.patch(`/delivery/tracking/${id}/update_status/`, { status, notes });
+    return response.data;
+  },
+
+  // Mark delivery as picked up
+  markPickedUp: async (id: number): Promise<any> => {
+    const response = await api.post(`/delivery/tracking/${id}/mark_picked_up/`);
+    return response.data;
+  },
+
+  // Mark delivery as delivered
+  markDelivered: async (id: number, proof: DeliveryProof): Promise<any> => {
+    const formData = new FormData();
+    
+    if (proof.notes) formData.append('notes', proof.notes);
+    if (proof.proof_photo) formData.append('proof_photo', proof.proof_photo);
+    if (proof.signature) formData.append('signature', proof.signature);
+    
+    const response = await api.post(`/delivery/tracking/${id}/mark_delivered/`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+    return response.data;
+  },
+
+  // Submit customer feedback
+  submitFeedback: async (id: number, feedback: CustomerFeedback): Promise<any> => {
+    const response = await api.post(`/delivery/tracking/${id}/submit_feedback/`, feedback);
+    return response.data;
+  },
+
+  // Get delivery route history
+  getRouteHistory: async (id: number): Promise<DeliveryRoute[]> => {
+    const response = await api.get(`/delivery/tracking/${id}/route_history/`);
+    return response.data;
+  },
+
+  // Get delivery status history
+  getStatusHistory: async (id: number): Promise<any[]> => {
+    const response = await api.get(`/delivery/tracking/${id}/status_history/`);
+    return response.data;
+  },
+};
+
 export default api;
+
